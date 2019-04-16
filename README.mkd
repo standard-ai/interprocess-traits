@@ -1,0 +1,12 @@
+# interprocess-traits
+
+The interprocess-traits crate is built to aid safe APIs that involve interprocess communication and
+memory sharing. The provided traits `ProcSend` and `ProcSync` closely mirror the standard `Send`
+and `Sync` marker traits and are intended to be implemented by types that are intended to be usable
+between distinct processes.
+
+Read [documentation] for in-depth information.
+
+interprocess-traits is distributed under a dual MIT/Apache-2.0 at your choice.
+
+[documentation]: https://docs.rs/interprocess-traits/

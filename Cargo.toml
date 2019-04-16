@@ -1,0 +1,16 @@
+[package]
+name = "interprocess-traits"
+version = "0.1.0"
+authors = [
+    "Simonas Kazlauskas <simonas@standard.ai>",
+    "Bernardo Meurer <bernardo@standard.ai>",
+    "Léo Gaspard <leo@standard.ai>"
+]
+edition = "2015"
+description = "The ProcSend and ProcSync traits for safe interprocess APIs"
+keywords = ["ipc"]
+license = "Apache-2.0 OR MIT"
+repository = "https://github.com/standard-ai/interprocess-traits"
+documentation = "https://docs.rs/interprocess-traits"
+
+[dependencies]
