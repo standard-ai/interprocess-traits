@@ -1,51 +1,73 @@
-use std::sync::atomic::*;
-use std::num::*;
+#![cfg_attr(feature="auto-traits", feature(optin_builtin_traits))]
+#![cfg_attr(not(feature="std"), no_std)]
+//! The interprocess-traits crate provides type traits to annotate types which have certain
+//! properties when used in a multiprocess environment.
 
-/// Types which can be transferred across process boundary.
-///
-/// An example of non-`ProcSend` type would be any type that contains pointers to values in a
-/// process’ address space. Instead a `ProcSend` type would use indices which the processes would
-/// know how to convert into their own address space.
-///
-/// In general, for any type to implement `ProcSend`, it must be [`Send`], as threads conceptually
-/// are the same as processes which share the same address space.
-///
-/// Unlike [`Send`], `ProcSend` is not an auto-trait, because auto-traits are not stable. Instead,
-/// use `derive(ProcSend)` to implement `ProcSend` for the types which you want to transfer across
-/// a process boundary. This trait may become an auto trait in the future.
-///
-/// Finally, currently `ProcSend` is only implemented for types which have specified type layout
-/// and are ffi-safe. This is a conservative default as there is no guarantee that the two
-/// interacting processes will be compiled with a same version of Rust or are Rust at all.
+
+#[cfg(feature="std")]
+use std as core;
+
+use core::sync::atomic::*;
+use core::num::*;
+
+#[cfg(feature="auto-traits")]
+macro_rules! maybe_auto_trait {
+    ($doctext:literal pub unsafe trait $traitname:ident: $deps:ident {}) => {
+        // NB: no supertrait, built-in traits cannot have them!
+        #[doc=$doctext]
+        pub unsafe auto trait $traitname {}
+    }
+}
+
+#[cfg(not(feature="auto-traits"))]
+macro_rules! maybe_auto_trait {
+    ($doctext:literal pub unsafe trait $traitname:ident: $deps:ident {}) => {
+        #[doc=$doctext]
+        pub unsafe trait $traitname: $deps {}
+    }
+}
+
+maybe_auto_trait! {
+"Types which can be transferred across process boundary.
+
+An example of non-`ProcSend` type would be any type that contains pointers to values in \
+a process’ address space. Instead a `ProcSend` type would use indices which the \
+processes would know how to convert into their own address space.
+
+In general, for any type to implement `ProcSend`, it must be [`Send`], as threads \
+conceptually are the same as processes which share the same address space.
+
+Unlike [`Send`], `ProcSend` is not an auto-trait by default, because auto-traits are not stable. \
+Unless the `auto_traits` feature is enabled, it will be necessary to implement this \
+trait manually.
+
+Finally, currently `ProcSend` is only implemented for the built-in types which have \
+specified type layout and are ffi-safe. This is a conservative default as there is \
+no guarantee that the two interacting processes will be compiled with a same version \
+of Rust or are Rust at all."
 pub unsafe trait ProcSend: Send {}
+}
 
-/// Types for which it is safe to share references between processes.
-///
-/// Much like [`ProcSend`] is a cross-process [`Send`], [`ProcSync`] is a cross-process [`Sync`].
-///
-/// In general, for any type to implement `ProcSync`, it must be [`Sync`], as threads conceptually
-/// are the same as processes which sahre the same address space.
-///
-/// Unlike [`Sync`], `ProcSync` is not an auto-trait, because auto-traits are not stable. Instead,
-/// use `derive(ProcSync)` to implement `ProcSync` for the types which you want to share references
-/// to across a process boundary. This trait may become an auto trait in the future.
+maybe_auto_trait! {
+"Types for which it is safe to share references between processes.
+
+Much like [`ProcSend`] is a cross-process [`Send`], [`ProcSync`] is a cross-process [`Sync`].
+
+In general, for any type to implement `ProcSync`, it must be [`Sync`], as threads conceptually \
+are the same as processes which sahre the same address space.
+
+Unlike [`Sync`], `ProcSync` is not an auto-trait by default, because auto-traits are not stable. \
+Unless the `auto_traits` feature is enabled, it will be necessary to implement this \
+trait manually."
 pub unsafe trait ProcSync: Sync {}
-
-/// Assert that the contained type is `ProcSend`.
-///
-/// This type has the same representation as `T`.
-#[repr(transparent)]
-pub struct AssertProcSend<T>(pub T);
-
-/// Assert that the contained type is `ProcSync`.
-///
-/// This type has the same representation as `T`.
-#[repr(transparent)]
-pub struct AssertProcSync<T>(pub T);
+}
 
 macro_rules! implement_marker_for {
     (unsafe impl $trait:ident for $($t:ty),*) => {
         $(unsafe impl $trait for $t {})*
+    };
+    (unsafe impl !$trait:ident for $($t:ty),*) => {
+        $(unsafe impl !$trait for $t {})*
     };
 }
 
@@ -60,13 +82,39 @@ implement_marker_for! {
     AtomicBool,
     NonZeroU8, NonZeroU16, NonZeroU32, NonZeroU64, NonZeroU128, NonZeroUsize,
     NonZeroI8, NonZeroI16, NonZeroI32, NonZeroI64, NonZeroI128, NonZeroIsize,
-    std::ffi::c_void
+    core::ffi::c_void
 }
 
-unsafe impl<T: ProcSend> ProcSend for std::cell::Cell<T> {}
-unsafe impl<T: ProcSend> ProcSend for std::cell::UnsafeCell<T> {}
-unsafe impl<T: ProcSend> ProcSend for std::mem::ManuallyDrop<T> {}
-unsafe impl<T: Send> ProcSend for AssertProcSend<T> {}
+unsafe impl<T: ProcSend> ProcSend for core::cell::Cell<T> {}
+unsafe impl<T: ProcSend> ProcSend for core::cell::UnsafeCell<T> {}
+unsafe impl<T: ProcSend> ProcSend for core::mem::ManuallyDrop<T> {}
+
+#[cfg(feature="auto-traits")]
+impl<T> !ProcSend for *const T {}
+#[cfg(feature="auto-traits")]
+impl<T> !ProcSend for *mut T {}
+#[cfg(feature="auto-traits")]
+impl<T> !ProcSend for AtomicPtr<T> {}
+#[cfg(feature="auto-traits")]
+impl<T> !ProcSend for &T {}
+#[cfg(feature="auto-traits")]
+impl<T> !ProcSend for &mut T {}
+#[cfg(feature="auto-traits")]
+impl<T> !ProcSend for core::ptr::NonNull<T> {}
+#[cfg(all(feature="auto-traits", feature="std"))]
+impl<T> !ProcSend for std::rc::Rc<T> {}
+#[cfg(all(feature="auto-traits", feature="std"))]
+impl<T> !ProcSend for std::rc::Weak<T> {}
+#[cfg(all(feature="auto-traits", feature="std"))]
+impl<T> !ProcSend for std::sync::Arc<T> {}
+#[cfg(all(feature="auto-traits", feature="std"))]
+impl<T> !ProcSend for std::sync::Weak<T> {}
+#[cfg(all(feature="auto-traits", feature="std"))]
+impl<T> !ProcSend for std::sync::Mutex<T> {}
+#[cfg(all(feature="auto-traits", feature="std"))]
+impl<'a, T> !ProcSend for std::sync::MutexGuard<'a, T> {}
+#[cfg(all(feature="auto-traits", feature="std"))]
+impl<T> !ProcSend for std::sync::RwLock<T> {}
 
 implement_marker_for! {
     unsafe impl ProcSync for
@@ -79,8 +127,22 @@ implement_marker_for! {
     AtomicBool,
     NonZeroU8, NonZeroU16, NonZeroU32, NonZeroU64, NonZeroU128, NonZeroUsize,
     NonZeroI8, NonZeroI16, NonZeroI32, NonZeroI64, NonZeroI128, NonZeroIsize,
-    std::ffi::c_void
+    core::ffi::c_void
 }
 
-unsafe impl<T: ProcSync> ProcSync for std::mem::ManuallyDrop<T> {}
-unsafe impl<T: Sync> ProcSync for AssertProcSync<T> {}
+unsafe impl<T: ProcSync> ProcSync for core::mem::ManuallyDrop<T> {}
+
+#[cfg(feature="auto-traits")]
+impl<T> !ProcSync for core::cell::Cell<T> {}
+#[cfg(feature="auto-traits")]
+impl<T> !ProcSync for core::cell::UnsafeCell<T> {}
+#[cfg(feature="auto-traits")]
+impl<T> !ProcSync for *const T {}
+#[cfg(feature="auto-traits")]
+impl<T> !ProcSync for *mut T {}
+#[cfg(feature="auto-traits")]
+impl<T> !ProcSync for AtomicPtr<T> {}
+#[cfg(feature="auto-traits")]
+impl<T> !ProcSync for &T {}
+#[cfg(feature="auto-traits")]
+impl<T> !ProcSync for &mut T {}
