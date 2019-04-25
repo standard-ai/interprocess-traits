@@ -85,6 +85,7 @@ implement_marker_for! {
     core::ffi::c_void
 }
 
+unsafe impl<T: ProcSend> ProcSend for core::cell::RefCell<T> {}
 unsafe impl<T: ProcSend> ProcSend for core::cell::Cell<T> {}
 unsafe impl<T: ProcSend> ProcSend for core::cell::UnsafeCell<T> {}
 unsafe impl<T: ProcSend> ProcSend for core::mem::ManuallyDrop<T> {}
@@ -99,22 +100,33 @@ impl<T> !ProcSend for AtomicPtr<T> {}
 impl<T> !ProcSend for &T {}
 #[cfg(feature="auto-traits")]
 impl<T> !ProcSend for &mut T {}
-#[cfg(feature="auto-traits")]
-impl<T> !ProcSend for core::ptr::NonNull<T> {}
 #[cfg(all(feature="auto-traits", feature="std"))]
-impl<T> !ProcSend for std::rc::Rc<T> {}
+impl !ProcSend for std::net::TcpListener {}
 #[cfg(all(feature="auto-traits", feature="std"))]
-impl<T> !ProcSend for std::rc::Weak<T> {}
+impl !ProcSend for std::net::TcpStream {}
 #[cfg(all(feature="auto-traits", feature="std"))]
-impl<T> !ProcSend for std::sync::Arc<T> {}
+impl !ProcSend for std::net::UdpSocket {}
+#[cfg(all(feature="auto-traits", feature="std", unix))]
+impl !ProcSend for std::os::unix::net::UnixDatagram {}
+#[cfg(all(feature="auto-traits", feature="std", unix))]
+impl !ProcSend for std::os::unix::net::UnixListener {}
+#[cfg(all(feature="auto-traits", feature="std", unix))]
+impl !ProcSend for std::os::unix::net::UnixStream {}
 #[cfg(all(feature="auto-traits", feature="std"))]
-impl<T> !ProcSend for std::sync::Weak<T> {}
+impl !ProcSend for std::fs::File {}
 #[cfg(all(feature="auto-traits", feature="std"))]
-impl<T> !ProcSend for std::sync::Mutex<T> {}
+impl !ProcSend for std::process::Child {}
 #[cfg(all(feature="auto-traits", feature="std"))]
-impl<'a, T> !ProcSend for std::sync::MutexGuard<'a, T> {}
+impl !ProcSend for std::process::ChildStderr {}
 #[cfg(all(feature="auto-traits", feature="std"))]
-impl<T> !ProcSend for std::sync::RwLock<T> {}
+impl !ProcSend for std::process::ChildStdin {}
+#[cfg(all(feature="auto-traits", feature="std"))]
+impl !ProcSend for std::process::ChildStdout {}
+#[cfg(all(feature="auto-traits", feature="std"))]
+impl !ProcSend for std::process::Stdio {}
+#[cfg(all(feature="auto-traits", feature="std"))]
+impl !ProcSend for std::thread::ThreadId {}
+
 
 implement_marker_for! {
     unsafe impl ProcSync for
@@ -143,6 +155,34 @@ impl<T> !ProcSync for *mut T {}
 #[cfg(feature="auto-traits")]
 impl<T> !ProcSync for AtomicPtr<T> {}
 #[cfg(feature="auto-traits")]
+impl<T> !ProcSync for core::ptr::NonNull<T> {}
+#[cfg(feature="auto-traits")]
 impl<T> !ProcSync for &T {}
 #[cfg(feature="auto-traits")]
 impl<T> !ProcSync for &mut T {}
+#[cfg(all(feature="auto-traits", feature="std"))]
+impl !ProcSync for std::net::TcpListener {}
+#[cfg(all(feature="auto-traits", feature="std"))]
+impl !ProcSync for std::net::TcpStream {}
+#[cfg(all(feature="auto-traits", feature="std"))]
+impl !ProcSync for std::net::UdpSocket {}
+#[cfg(all(feature="auto-traits", feature="std", unix))]
+impl !ProcSync for std::os::unix::net::UnixDatagram {}
+#[cfg(all(feature="auto-traits", feature="std", unix))]
+impl !ProcSync for std::os::unix::net::UnixListener {}
+#[cfg(all(feature="auto-traits", feature="std", unix))]
+impl !ProcSync for std::os::unix::net::UnixStream {}
+#[cfg(all(feature="auto-traits", feature="std"))]
+impl !ProcSync for std::fs::File {}
+#[cfg(all(feature="auto-traits", feature="std"))]
+impl !ProcSync for std::process::Child {}
+#[cfg(all(feature="auto-traits", feature="std"))]
+impl !ProcSync for std::process::ChildStderr {}
+#[cfg(all(feature="auto-traits", feature="std"))]
+impl !ProcSync for std::process::ChildStdin {}
+#[cfg(all(feature="auto-traits", feature="std"))]
+impl !ProcSync for std::process::ChildStdout {}
+#[cfg(all(feature="auto-traits", feature="std"))]
+impl !ProcSync for std::process::Stdio {}
+#[cfg(all(feature="auto-traits", feature="std"))]
+impl !ProcSync for std::thread::ThreadId {}
