@@ -16,6 +16,6 @@ documentation = "https://docs.rs/interprocess-traits"
 [dependencies]
 
 [features]
-auto-traits = []
+experimental-auto-traits = []
 std = []
 default = ["std"]

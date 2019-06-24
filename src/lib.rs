@@ -1,4 +1,4 @@
-#![cfg_attr(feature="auto-traits", feature(optin_builtin_traits))]
+#![cfg_attr(feature="experimental-auto-traits", feature(optin_builtin_traits))]
 #![cfg_attr(not(feature="std"), no_std)]
 //! The interprocess-traits crate provides type traits to annotate types which have certain
 //! properties when used in a multiprocess environment.
@@ -10,7 +10,7 @@ use std as core;
 use core::sync::atomic::*;
 use core::num::*;
 
-#[cfg(feature="auto-traits")]
+#[cfg(feature="experimental-auto-traits")]
 macro_rules! maybe_auto_trait {
     ($doctext:literal pub unsafe trait $traitname:ident: $deps:ident {}) => {
         // NB: no supertrait, built-in traits cannot have them!
@@ -19,7 +19,7 @@ macro_rules! maybe_auto_trait {
     }
 }
 
-#[cfg(not(feature="auto-traits"))]
+#[cfg(not(feature="experimental-auto-traits"))]
 macro_rules! maybe_auto_trait {
     ($doctext:literal pub unsafe trait $traitname:ident: $deps:ident {}) => {
         #[doc=$doctext]
@@ -90,41 +90,41 @@ unsafe impl<T: ProcSend> ProcSend for core::cell::Cell<T> {}
 unsafe impl<T: ProcSend> ProcSend for core::cell::UnsafeCell<T> {}
 unsafe impl<T: ProcSend> ProcSend for core::mem::ManuallyDrop<T> {}
 
-#[cfg(feature="auto-traits")]
+#[cfg(feature="experimental-auto-traits")]
 impl<T> !ProcSend for *const T {}
-#[cfg(feature="auto-traits")]
+#[cfg(feature="experimental-auto-traits")]
 impl<T> !ProcSend for *mut T {}
-#[cfg(feature="auto-traits")]
+#[cfg(feature="experimental-auto-traits")]
 impl<T> !ProcSend for AtomicPtr<T> {}
-#[cfg(feature="auto-traits")]
+#[cfg(feature="experimental-auto-traits")]
 impl<T> !ProcSend for &T {}
-#[cfg(feature="auto-traits")]
+#[cfg(feature="experimental-auto-traits")]
 impl<T> !ProcSend for &mut T {}
-#[cfg(all(feature="auto-traits", feature="std"))]
+#[cfg(all(feature="experimental-auto-traits", feature="std"))]
 impl !ProcSend for std::net::TcpListener {}
-#[cfg(all(feature="auto-traits", feature="std"))]
+#[cfg(all(feature="experimental-auto-traits", feature="std"))]
 impl !ProcSend for std::net::TcpStream {}
-#[cfg(all(feature="auto-traits", feature="std"))]
+#[cfg(all(feature="experimental-auto-traits", feature="std"))]
 impl !ProcSend for std::net::UdpSocket {}
-#[cfg(all(feature="auto-traits", feature="std", unix))]
+#[cfg(all(feature="experimental-auto-traits", feature="std", unix))]
 impl !ProcSend for std::os::unix::net::UnixDatagram {}
-#[cfg(all(feature="auto-traits", feature="std", unix))]
+#[cfg(all(feature="experimental-auto-traits", feature="std", unix))]
 impl !ProcSend for std::os::unix::net::UnixListener {}
-#[cfg(all(feature="auto-traits", feature="std", unix))]
+#[cfg(all(feature="experimental-auto-traits", feature="std", unix))]
 impl !ProcSend for std::os::unix::net::UnixStream {}
-#[cfg(all(feature="auto-traits", feature="std"))]
+#[cfg(all(feature="experimental-auto-traits", feature="std"))]
 impl !ProcSend for std::fs::File {}
-#[cfg(all(feature="auto-traits", feature="std"))]
+#[cfg(all(feature="experimental-auto-traits", feature="std"))]
 impl !ProcSend for std::process::Child {}
-#[cfg(all(feature="auto-traits", feature="std"))]
+#[cfg(all(feature="experimental-auto-traits", feature="std"))]
 impl !ProcSend for std::process::ChildStderr {}
-#[cfg(all(feature="auto-traits", feature="std"))]
+#[cfg(all(feature="experimental-auto-traits", feature="std"))]
 impl !ProcSend for std::process::ChildStdin {}
-#[cfg(all(feature="auto-traits", feature="std"))]
+#[cfg(all(feature="experimental-auto-traits", feature="std"))]
 impl !ProcSend for std::process::ChildStdout {}
-#[cfg(all(feature="auto-traits", feature="std"))]
+#[cfg(all(feature="experimental-auto-traits", feature="std"))]
 impl !ProcSend for std::process::Stdio {}
-#[cfg(all(feature="auto-traits", feature="std"))]
+#[cfg(all(feature="experimental-auto-traits", feature="std"))]
 impl !ProcSend for std::thread::ThreadId {}
 
 
@@ -144,45 +144,45 @@ implement_marker_for! {
 
 unsafe impl<T: ProcSync> ProcSync for core::mem::ManuallyDrop<T> {}
 
-#[cfg(feature="auto-traits")]
+#[cfg(feature="experimental-auto-traits")]
 impl<T> !ProcSync for core::cell::Cell<T> {}
-#[cfg(feature="auto-traits")]
+#[cfg(feature="experimental-auto-traits")]
 impl<T> !ProcSync for core::cell::UnsafeCell<T> {}
-#[cfg(feature="auto-traits")]
+#[cfg(feature="experimental-auto-traits")]
 impl<T> !ProcSync for *const T {}
-#[cfg(feature="auto-traits")]
+#[cfg(feature="experimental-auto-traits")]
 impl<T> !ProcSync for *mut T {}
-#[cfg(feature="auto-traits")]
+#[cfg(feature="experimental-auto-traits")]
 impl<T> !ProcSync for AtomicPtr<T> {}
-#[cfg(feature="auto-traits")]
+#[cfg(feature="experimental-auto-traits")]
 impl<T> !ProcSync for core::ptr::NonNull<T> {}
-#[cfg(feature="auto-traits")]
+#[cfg(feature="experimental-auto-traits")]
 impl<T> !ProcSync for &T {}
-#[cfg(feature="auto-traits")]
+#[cfg(feature="experimental-auto-traits")]
 impl<T> !ProcSync for &mut T {}
-#[cfg(all(feature="auto-traits", feature="std"))]
+#[cfg(all(feature="experimental-auto-traits", feature="std"))]
 impl !ProcSync for std::net::TcpListener {}
-#[cfg(all(feature="auto-traits", feature="std"))]
+#[cfg(all(feature="experimental-auto-traits", feature="std"))]
 impl !ProcSync for std::net::TcpStream {}
-#[cfg(all(feature="auto-traits", feature="std"))]
+#[cfg(all(feature="experimental-auto-traits", feature="std"))]
 impl !ProcSync for std::net::UdpSocket {}
-#[cfg(all(feature="auto-traits", feature="std", unix))]
+#[cfg(all(feature="experimental-auto-traits", feature="std", unix))]
 impl !ProcSync for std::os::unix::net::UnixDatagram {}
-#[cfg(all(feature="auto-traits", feature="std", unix))]
+#[cfg(all(feature="experimental-auto-traits", feature="std", unix))]
 impl !ProcSync for std::os::unix::net::UnixListener {}
-#[cfg(all(feature="auto-traits", feature="std", unix))]
+#[cfg(all(feature="experimental-auto-traits", feature="std", unix))]
 impl !ProcSync for std::os::unix::net::UnixStream {}
-#[cfg(all(feature="auto-traits", feature="std"))]
+#[cfg(all(feature="experimental-auto-traits", feature="std"))]
 impl !ProcSync for std::fs::File {}
-#[cfg(all(feature="auto-traits", feature="std"))]
+#[cfg(all(feature="experimental-auto-traits", feature="std"))]
 impl !ProcSync for std::process::Child {}
-#[cfg(all(feature="auto-traits", feature="std"))]
+#[cfg(all(feature="experimental-auto-traits", feature="std"))]
 impl !ProcSync for std::process::ChildStderr {}
-#[cfg(all(feature="auto-traits", feature="std"))]
+#[cfg(all(feature="experimental-auto-traits", feature="std"))]
 impl !ProcSync for std::process::ChildStdin {}
-#[cfg(all(feature="auto-traits", feature="std"))]
+#[cfg(all(feature="experimental-auto-traits", feature="std"))]
 impl !ProcSync for std::process::ChildStdout {}
-#[cfg(all(feature="auto-traits", feature="std"))]
+#[cfg(all(feature="experimental-auto-traits", feature="std"))]
 impl !ProcSync for std::process::Stdio {}
-#[cfg(all(feature="auto-traits", feature="std"))]
+#[cfg(all(feature="experimental-auto-traits", feature="std"))]
 impl !ProcSync for std::thread::ThreadId {}
