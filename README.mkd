@@ -1,4 +1,4 @@
-# interprocess-traits
+# interprocess-traits [![Crates.io](https://img.shields.io/crates/v/interprocess-traits.svg)](https://crates.io/crates/interprocess-traits) [![Documentation](https://docs.rs/interprocess-traits/badge.svg)](https://docs.rs/interprocess-traits)
 
 The interprocess-traits crate is built to aid safe APIs that involve interprocess communication and
 memory sharing. The provided traits `ProcSend` and `ProcSync` closely mirror the standard `Send`
