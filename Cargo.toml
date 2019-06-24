@@ -9,7 +9,8 @@ authors = [
 edition = "2015"
 description = "The ProcSend and ProcSync traits for safe interprocess APIs"
 keywords = ["ipc"]
-license = "Apache-2.0 OR MIT"
+license = "Apache-2.0 OR BSD-3-Clause"
+
 repository = "https://github.com/standard-ai/interprocess-traits"
 documentation = "https://docs.rs/interprocess-traits"
 
