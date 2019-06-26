@@ -71,6 +71,16 @@ macro_rules! implement_marker_for {
     };
 }
 
+macro_rules! implement_marker_for_tuples {
+    (unsafe impl $trait:ident for) => { };
+    (unsafe impl $trait:ident for $hd:ident, $($tl:ident,)*) => {
+        unsafe impl<$hd: $trait, $($tl: $trait),*> $trait for ($hd, $($tl),*) {}
+        implement_marker_for_tuples! {
+            unsafe impl $trait for $($tl,)*
+        }
+    };
+}
+
 implement_marker_for! {
     unsafe impl ProcSend for
     u8, u16, u32, u64, u128, usize,
@@ -83,6 +93,11 @@ implement_marker_for! {
     NonZeroU8, NonZeroU16, NonZeroU32, NonZeroU64, NonZeroU128, NonZeroUsize,
     NonZeroI8, NonZeroI16, NonZeroI32, NonZeroI64, NonZeroI128, NonZeroIsize,
     core::ffi::c_void
+}
+
+implement_marker_for_tuples! {
+    unsafe impl ProcSend for
+    T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12,
 }
 
 unsafe impl<T: ProcSend> ProcSend for core::cell::RefCell<T> {}
@@ -140,6 +155,11 @@ implement_marker_for! {
     NonZeroU8, NonZeroU16, NonZeroU32, NonZeroU64, NonZeroU128, NonZeroUsize,
     NonZeroI8, NonZeroI16, NonZeroI32, NonZeroI64, NonZeroI128, NonZeroIsize,
     core::ffi::c_void
+}
+
+implement_marker_for_tuples! {
+    unsafe impl ProcSync for
+    T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12,
 }
 
 unsafe impl<T: ProcSync> ProcSync for core::mem::ManuallyDrop<T> {}
