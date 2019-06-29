@@ -1,6 +1,6 @@
 [package]
 name = "interprocess-traits"
-version = "0.1.0"
+version = "0.1.1"
 authors = [
     "Simonas Kazlauskas <simonas@standard.ai>",
     "Bernardo Meurer <bernardo@standard.ai>",
